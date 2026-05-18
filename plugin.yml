@@ -1,0 +1,12 @@
+name: EconomySystem
+description: A economy plugin
+main: EconomySystem\EconomySystem
+api: 2.0.0
+version: 1.0.0
+author: NATANBX0
+website: https://github.com/NATANBX0
+resources:
+  - 'config.yml'
+  - 'messages.yml'
+depend:
+  - SmartCommand
