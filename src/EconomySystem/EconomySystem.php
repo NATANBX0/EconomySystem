@@ -14,6 +14,7 @@ use EconomySystem\Service\EconomyService;
 use EconomySystem\Utils\Container;
 use EconomySystem\Utils\Messages;
 use EconomySystem\Utils\ResourceEconomySystem;
+use EconomySystem\Utils\ResourceLoader;
 use EconomySystem\Utils\SingletonTrait;
 use pocketmine\plugin\PluginBase;
 use SmartCommand\message\DefaultMessages;
@@ -30,9 +31,10 @@ class EconomySystem extends PluginBase {
     {
         self::setInstance($this);
         Messages::init();
-        ResourceEconomySystem::init($this, $this->getFile());
+        ResourceLoader::init($this, $this->getFile());
         $this->bootProviders();
         $this->registerCommands();
+        $this->getServer()->getPluginManager()->registerEvents(new ESListener(), $this);
     }
 
     public function bootProviders()

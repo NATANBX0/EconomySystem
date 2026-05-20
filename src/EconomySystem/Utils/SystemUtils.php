@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace EconomySystem\Utils;
 
+use pocketmine\event\Event;
 use pocketmine\Player;
+use pocketmine\Server;
 
 class SystemUtils {
 
@@ -20,5 +22,11 @@ class SystemUtils {
             return true;
         }
         return false;
+    }
+
+    public static function callEvent(Event $event)
+    {
+        Server::getInstance()->getPluginManager()->callEvent($event);
+        return $event;
     }
 }

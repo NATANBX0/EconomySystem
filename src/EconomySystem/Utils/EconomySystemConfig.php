@@ -5,42 +5,41 @@ declare(strict_types=1);
 namespace EconomySystem\Utils;
 
 use pocketmine\utils\Config;
-use ArenaTops\EconomySystem;
+use EconomySystem\EconomySystem;
 
-class ArenaTopConfigs
+class EconomySystemConfig
 {
-
-    const NUMBER_OF_LINES_ON_LEADERBOARD = 'number-of-lines-leaderboard';
 
     public static function getConfig(): Config
     {
         return EconomySystem::getInstance()->getConfig();
     }
 
-    public static function has($key)
+    /**
+     * @param string $key
+     */
+    public static function has(string $key)
     {
         return self::getConfig()->exists($key);
     }
 
+    /**
+     * @param string $key
+     * @param mixed $default
+     */
     public static function get($key, $default = false)
     {
         return self::getConfig()->get($key, $default);
     }
 
-    public static function set($key, $value)
+    /**
+     * @param string $key
+     * @param mixed $value
+     */
+    public static function set(string $key, $value)
     {
         $config = self::getConfig();
         $config->set($key, $value);
         return $config->save();
-    }
-
-    public static function getLeaderboardLinesNumber()
-    {
-        return self::get(self::NUMBER_OF_LINES_ON_LEADERBOARD, 10);
-    }
-
-    public static function showNoScoreArenas()
-    {
-        return self::get('show-no-score-arenas', true);
     }
 }

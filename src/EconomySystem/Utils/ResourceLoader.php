@@ -8,7 +8,7 @@ use pocketmine\plugin\PluginBase;
 use pocketmine\utils\Config;
 use EconomySystem\EconomySystem;
 
-final class ResourceEconomySystem
+final class ResourceLoader
 {
 
     const DIRECTORY = "directory";

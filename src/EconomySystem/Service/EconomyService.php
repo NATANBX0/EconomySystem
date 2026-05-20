@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace EconomySystem\Service;
 
 use EconomySystem\Data\AccountDataInterface;
+use EconomySystem\Events\Money\PreTransferMoneyEvent;
+use EconomySystem\Events\Money\TransferMoneyEvent;
 use EconomySystem\Model\AccountInterface;
 use EconomySystem\Service\Exception\AmountToTransferHigherThanBalance;
 use EconomySystem\Service\Exception\MoneyAmountLessThanZeroException;
 use EconomySystem\Utils\Promise\Promise;
 use EconomySystem\Utils\Promise\PromiseResolver;
+use EconomySystem\Utils\SystemUtils;
 
 class EconomyService
 {
@@ -38,10 +41,14 @@ class EconomyService
     public function transfer(string $from, string $to, int $amount) : Promise
     {
         $resolver = new PromiseResolver();
-
+        
         $this->getAccount($from)->then(function (AccountInterface $fromAccount) use ($to, $amount, $resolver) {
             $this->getAccount($to)->then(function (AccountInterface $toAccount) use ($fromAccount, $amount, $resolver) {
-                
+                $event = SystemUtils::callEvent(new PreTransferMoneyEvent('EconomySystem', $fromAccount, $toAccount, $amount));
+                if($event->isCancelled())
+                {
+                    return;
+                }
                 if($amount < 0) 
                 {
                     $resolver->resolve(new MoneyAmountLessThanZeroException());
@@ -59,6 +66,7 @@ class EconomyService
                 $this->data->save($fromAccount);
                 $this->data->save($toAccount);
                 $resolver->resolve(true);
+                SystemUtils::callEvent(new TransferMoneyEvent('EconomySystem', $fromAccount, $toAccount, $amount));
             });
         });
 
