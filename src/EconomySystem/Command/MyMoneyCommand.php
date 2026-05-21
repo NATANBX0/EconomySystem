@@ -25,7 +25,7 @@ class MyMoneyCommand extends SmartCommand {
             'mymoney',
             'see ur money',
             self::DEFAULT_USAGE_PREFIX,
-            [],
+            ['mycoins'],
             $messages
         );
     }
