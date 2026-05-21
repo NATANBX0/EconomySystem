@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace EconomySystem\Model;
+namespace EconomySystem\Model\Account;
 
 interface AccountInterface {
     const PLAYER_NAME = 'player_name';

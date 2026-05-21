@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace EconomySystem\Task\Async;
 
-use EconomySystem\Model\Account;
+use EconomySystem\Model\Account\Account;
 use EconomySystem\Utils\Async\AsyncPromiseTask;
 
 class SaveAccountAsyncTask extends AsyncPromiseTask

@@ -2,11 +2,9 @@
 
 declare(strict_types=1);
 
-namespace EconomySystem\Data;
+namespace EconomySystem\Data\Account;
 
-use EconomySystem\Model\Account;
-use EconomySystem\Data\Exception\AccountNotFoundException;
-use EconomySystem\Model\AccountInterface;
+use EconomySystem\Model\Account\Account;
 use EconomySystem\Utils\Promise\Promise;
 
 interface AccountDataInterface {
@@ -20,10 +18,10 @@ interface AccountDataInterface {
     public function load(string $playerName) : Promise;
 
     /**
-     * @param AccountInterface $account
+     * @param Account $account
      * @return void
      */
-    public function save(AccountInterface $account);
+    public function save(Account $account);
 
     /**
      * @param string $playerName

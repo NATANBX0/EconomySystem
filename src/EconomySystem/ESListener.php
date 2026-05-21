@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace EconomySystem;
 
-use EconomySystem\Events\Money\PreTransferMoneyEvent;
-use EconomySystem\Events\Money\TransferMoneyEvent;
+use EconomySystem\Events\Account\PreTransferMoneyEvent;
+use EconomySystem\Events\Account\TransferMoneyEvent;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\Server;

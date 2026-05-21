@@ -6,7 +6,7 @@ namespace EconomySystem\Provider;
 
 use EconomySystem\Utils\Container;
 
-interface ServiceProviderInterface
+interface ProviderInterface
 {
     /**
      * @param Container $c

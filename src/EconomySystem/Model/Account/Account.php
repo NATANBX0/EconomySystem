@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace EconomySystem\Model;
+namespace EconomySystem\Model\Account;
 
 use EconomySystem\Utils\DynamicObject;
 use pocketmine\Player;

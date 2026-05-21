@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace EconomySystem\Utils;
 
+use EconomySystem\Events\EconomySystemEvent;
+use EconomySystem\Events\Account\PlayerBalanceIncreaseEvent;
+use EconomySystem\Events\Account\PlayerBalanceReduceEvent;
+use EconomySystem\Events\Account\PreTransferMoneyEvent;
+use EconomySystem\Events\Account\TransferMoneyEvent;
 use pocketmine\event\Event;
 use pocketmine\Player;
 use pocketmine\Server;
@@ -24,6 +29,10 @@ class SystemUtils {
         return false;
     }
 
+    /**
+     * @param Event $event
+     * @return Event|EconomySystemEvent|PlayerBalanceIncreaseEvent|PlayerBalanceReduceEvent|PreTransferMoneyEvent|TransferMoneyEvent
+     */
     public static function callEvent(Event $event)
     {
         Server::getInstance()->getPluginManager()->callEvent($event);
