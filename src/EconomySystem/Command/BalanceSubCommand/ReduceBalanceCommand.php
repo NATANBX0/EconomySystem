@@ -67,8 +67,10 @@ class ReduceBalanceCommand extends BaseSubCommand {
                     {
                         throw $result;
                     }
-
-                    $sender->sendMessage("Saldo da conta de {$player->getName()} diminuido em {$amount} saldo final: $result");
+                    if($result)
+                    {
+                        $sender->sendMessage("Saldo da conta de {$player->getName()} diminuido em {$amount} saldo final: $result");
+                    }
                 } catch (MoneyAmountLessThanZeroException $e) {
                     $sender->sendMessage("A quantidade de dinheiro a ser reduzida não pode ser menor que 0");
                 } catch (Exception $e) {

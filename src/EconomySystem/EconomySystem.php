@@ -4,16 +4,13 @@ declare(strict_types=1);
 
 namespace EconomySystem;
 
-use EconomySystem\Command\AddMoneyCommand;
+use EconomySystem\Command\MoneyCommand;
 use EconomySystem\Command\MyMoneyCommand;
-use EconomySystem\Command\ReduceBalanceCommand;
-use EconomySystem\Command\SetBalanceCommand;
 use EconomySystem\Command\TransferMoneyCommand;
 use EconomySystem\Provider\EconomyServiceProvider;
 use EconomySystem\Service\EconomyService;
 use EconomySystem\Utils\Container;
 use EconomySystem\Utils\Messages;
-use EconomySystem\Utils\ResourceEconomySystem;
 use EconomySystem\Utils\ResourceLoader;
 use EconomySystem\Utils\SingletonTrait;
 use pocketmine\plugin\PluginBase;
@@ -57,8 +54,6 @@ class EconomySystem extends PluginBase {
         $messages->add(Messages::getConfig()->getAll());
         $cm->register('mymoney', new MyMoneyCommand($messages));
         $cm->register('pay', new TransferMoneyCommand($messages));
-        $cm->register('setbalance', new SetBalanceCommand($messages));
-        $cm->register('addmoney', new AddMoneyCommand($messages));
-        $cm->register('reducebalance', new ReduceBalanceCommand($messages));
+        $cm->register('money', new MoneyCommand($messages));
     }
 }

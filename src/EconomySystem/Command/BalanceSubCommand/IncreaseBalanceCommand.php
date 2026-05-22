@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace EconomySystem\Command\BalanceSubCommand;
 
 use EconomySystem\EconomySystem;
+use EconomySystem\Service\Exception\AddToBalanceEventCancelledException;
 use EconomySystem\Service\Exception\MoneyAmountLessThanZeroException;
 use EconomySystem\Utils\SystemUtils;
 use Exception;
@@ -68,7 +69,10 @@ class IncreaseBalanceCommand extends BaseSubCommand
                     {
                         throw $result;
                     }
-                    $sender->sendMessage("Você aumentou o saldo de {$player->getName()} em $amount: $result");
+                    if($result)
+                    {
+                        $sender->sendMessage("Você aumentou o saldo de {$player->getName()} em $amount: $result");
+                    }
                 } catch (MoneyAmountLessThanZeroException $e) {
                     $sender->sendMessage("A quantidade de dinheiro não pode ser menor que 0");
                 } catch (Exception $e) {

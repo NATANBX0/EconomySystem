@@ -10,9 +10,12 @@ use EconomySystem\Events\Account\PlayerBalanceReduceEvent;
 use EconomySystem\Events\Account\PreTransferMoneyEvent;
 use EconomySystem\Events\Account\TransferMoneyEvent;
 use EconomySystem\Model\Account\AccountInterface;
+use EconomySystem\Service\Exception\AddToBalanceEventCancelledException;
 use EconomySystem\Service\Exception\AmountToReduceHigherThanBalance;
 use EconomySystem\Service\Exception\AmountToTransferHigherThanBalance;
 use EconomySystem\Service\Exception\MoneyAmountLessThanZeroException;
+use EconomySystem\Service\Exception\ReduceBalanceEventCancelledException;
+use EconomySystem\Service\Exception\TransferEventCancelledException;
 use EconomySystem\Utils\Promise\Promise;
 use EconomySystem\Utils\Promise\PromiseResolver;
 use EconomySystem\Utils\SystemUtils;
@@ -31,46 +34,48 @@ class EconomyService
         $this->data = $data;
     }
 
-    public function getAccount(string $player) : Promise
+    public function getAccount(string $player) : AccountInterface
     {
         $playerName = strtolower($player);
         if(isset($this->cache[$playerName]))
         {
             return $this->cache[$playerName];
         }
-        return $this->cache[$playerName] = $this->data->load($playerName);
+        $this->data->load($playerName)->then(
+            function (AccountInterface $result) use ($playerName) {
+                $this->cache[$playerName] =  $result;
+            }
+        );
+        return $this->cache[$playerName];
     }
 
     public function transfer(string $from, string $to, int $amount, $origin = 'EconomySystem') : Promise
     {
         $resolver = new PromiseResolver();
-        
-        $this->getAccount($from)->then(function (AccountInterface $fromAccount) use ($origin, $to, $amount, $resolver, $from) {
-            $this->getAccount($to)->then(function (AccountInterface $toAccount) use ($fromAccount, $amount, $origin, $resolver, $from, $to) {
-                $event = SystemUtils::callEvent(new PreTransferMoneyEvent($origin, $fromAccount, $toAccount, $amount));
-                if($event->isCancelled())
-                {
-                    return;
-                }
-                if($amount < 0) 
-                {
-                    $resolver->resolve(new MoneyAmountLessThanZeroException());
-                    $resolver->getPromise();
-                }
+        $fromAccount = $this->getAccount($from);
+        $toAccount = $this->getAccount($to);
+        $event = SystemUtils::callEvent(new PreTransferMoneyEvent($origin, $fromAccount, $toAccount, $amount));
+        if($event->isCancelled())
+        {
+            $resolver->resolve(false);
+            return $resolver->getPromise();
+        }
+        if($amount < 0) 
+        {
+            $resolver->resolve(new MoneyAmountLessThanZeroException());
+            $resolver->getPromise();
+        }
 
-                if(!$fromAccount->has($amount))
-                {
-                    $resolver->resolve(new AmountToTransferHigherThanBalance());
-                    return $resolver->getPromise();
-                }
+        if(!$fromAccount->has($amount))
+        {
+            $resolver->resolve(new AmountToTransferHigherThanBalance());
+            return $resolver->getPromise();
+        }
 
-                $this->reduceBalance($from, $amount);
-                $this->AddToBalance($to, $amount);
-                $resolver->resolve(true);
-                SystemUtils::callEvent(new TransferMoneyEvent($origin, $fromAccount, $toAccount, $amount));
-            });
-        });
-
+        $this->reduceBalance($from, $amount);
+        $this->AddToBalance($to, $amount);
+        $resolver->resolve(true);
+        SystemUtils::callEvent(new TransferMoneyEvent($origin, $fromAccount, $toAccount, $amount));
         return $resolver->getPromise();
     }
 
@@ -78,27 +83,25 @@ class EconomyService
     {
         $resolver = new PromiseResolver();
 
-        $this->getAccount($player)->then(function (AccountInterface $account) use ($amount, $ignoreNegativeBalance, $resolver) {
+        $account = $this->getAccount($player);
 
-            if($amount < 0 && $ignoreNegativeBalance === false)
-            {
-                $resolver->resolve(new MoneyAmountLessThanZeroException());
-                return $resolver->getPromise();
-            }
+        if($amount < 0 && $ignoreNegativeBalance === false)
+        {
+            $resolver->resolve(new MoneyAmountLessThanZeroException());
+            return $resolver->getPromise();
+        }
 
-            $account->setBalance($amount);
-            $this->data->save($account);
-            $resolver->resolve(true);
-        });
+        $account->setBalance($amount);
+        $this->data->save($account);
+        $resolver->resolve(true);
         return $resolver->getPromise();
     }
 
     public function getBalance(string $player)
     {
         $resolver = new PromiseResolver();
-        $this->getAccount($player)->then(function (AccountInterface $account) use ($resolver) {
-            $resolver->resolve($account->getBalance());
-        });
+        $account = $this->getAccount($player);
+        $resolver->resolve($account->getBalance());
         return $resolver->getPromise();
     }
 
@@ -106,26 +109,24 @@ class EconomyService
     {
         $resolver = new PromiseResolver();
 
-        $this->getAccount($player)->then(
-            function (AccountInterface $account) use ($amount, $origin, $resolver) {
+        $account = $this->getAccount($player);
 
-                $event = SystemUtils::callEvent(new PlayerBalanceIncreaseEvent($origin, $account, $amount));
-                if($event->isCancelled())
-                {
-                    return;
-                }
+        $event = SystemUtils::callEvent(new PlayerBalanceIncreaseEvent($origin, $account, $amount));
+        if($event->isCancelled())
+        {
+            $resolver->resolve(false);
+            return $resolver->getPromise();
+        }
 
-                if($amount < 0)
-                {
-                    $resolver->resolve(new MoneyAmountLessThanZeroException());
-                    return $resolver->getPromise();
-                }
-                
-                $account->setBalance($account->getBalance() + $amount);
-                $this->data->save($account);
+        if($amount < 0)
+        {
+            $resolver->resolve(new MoneyAmountLessThanZeroException());
+            return $resolver->getPromise();
+        }
+        
+        $account->setBalance($account->getBalance() + $amount);
+        $this->data->save($account);
                 $resolver->resolve($account->getBalance());
-            }
-        );
         return $resolver->getPromise();
     }
 
@@ -133,44 +134,39 @@ class EconomyService
     {
         $resolver = new PromiseResolver();
 
-        $this->getAccount($player)->then(
-            function (AccountInterface $account) use ($amount, $ignoreNegativeBalance, $origin, $resolver) {
+        $account = $this->getAccount($player);
 
-                $event = SystemUtils::callEvent(new PlayerBalanceReduceEvent($origin, $account, $amount, $ignoreNegativeBalance === false));
-                if($event->isCancelled())
-                {
-                    return;
-                }
+        $event = SystemUtils::callEvent(new PlayerBalanceReduceEvent($origin, $account, $amount, $ignoreNegativeBalance === false));
+        if($event->isCancelled())
+        {
+            $resolver->resolve(false);
+            return $resolver->getPromise();
+        }
 
-                if($amount < 0)
-                {
-                    $resolver->resolve(new MoneyAmountLessThanZeroException());
-                    return $resolver->getPromise();
-                }
+        if($amount < 0)
+        {
+            $resolver->resolve(new MoneyAmountLessThanZeroException());
+            return $resolver->getPromise();
+        }
 
-                if(!$account->has($amount) && $event->isIgnoringNegativeBalance())
-                {
-                    $resolver->resolve(new AmountToReduceHigherThanBalance());
-                    return $resolver;
-                }
-                
-                $account->withdraw($amount);
-                $this->data->save($account);
-                $resolver->resolve($account->getBalance());
-            }
-        );
+        if(!$account->has($amount) && $event->isIgnoringNegativeBalance())
+        {
+            $resolver->resolve(new AmountToReduceHigherThanBalance());
+            return $resolver;
+        }
+        
+        $account->withdraw($amount);
+        $this->data->save($account);
+        $resolver->resolve($account->getBalance());
         return $resolver->getPromise();
     }
 
     public function saveAndClearCache(string $player)
     {
-        $this->getAccount($player)->then(
-            function(AccountInterface $account) {
-                $this->data->save($account);
-                $playerName = $account->getPlayerName();
-                unset($this->cache[$playerName]);
-            }
-        );
+        $account = $this->getAccount($player);
+        $this->data->save($account);
+        $playerName = $account->getPlayerName();
+        unset($this->cache[$playerName]);
     }
 
 }

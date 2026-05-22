@@ -67,9 +67,11 @@ class TransferMoneyCommand extends SmartCommand {
                     if($result instanceof Exception) {
                         throw $result;
                     }
-
-                    $sender->sendMessage("Você enviou para {$player->getName()}: $amount coins");
-                    $player->sendMessage("Você recebeu de {$sender->getName()}: $amount coins");
+                    if($result)
+                    {
+                        $sender->sendMessage("Você enviou para {$player->getName()}: $amount coins");
+                        $player->sendMessage("Você recebeu de {$sender->getName()}: $amount coins");
+                    }
                 } catch(MoneyAmountLessThanZeroException $e){
                     $sender->sendMessage("A quantidade de dinheiro não pode ser menor que 0");
                 } catch(AmountToTransferHigherThanBalance $e) {
