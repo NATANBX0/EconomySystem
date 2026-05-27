@@ -21,14 +21,14 @@ class PlayerBalanceIncreaseEvent extends EconomySystemEvent implements Cancellab
     private $amount;
     public function __construct(string $origin, AccountInterface $account, int $amount)
     {
-        $this->$account = $account;
-        $this->$amount = $amount;
+        $this->account = $account;
+        $this->amount = $amount;
         return parent::__construct(EconomySystem::getInstance(), $origin);
     }
 
     public function getAccount()
     {
-        return $this->getAccount();
+        return $this->account;
     }
 
     public function getAmount()

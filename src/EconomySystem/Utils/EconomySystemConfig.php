@@ -9,7 +9,6 @@ use EconomySystem\EconomySystem;
 
 class EconomySystemConfig
 {
-
     public static function getConfig(): Config
     {
         return EconomySystem::getInstance()->getConfig();

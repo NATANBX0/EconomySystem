@@ -19,14 +19,11 @@ class PlayerBalanceReduceEvent extends EconomySystemEvent implements Cancellable
     private $account;
     /** @var int */
     private $amount;
-    /** @var bool */
-    protected $ignoreNegativeBalance;
 
-    public function __construct(string $origin, AccountInterface $account, int $amount, $ignoreNegativeBalance = false)
+    public function __construct(string $origin, AccountInterface $account, int $amount)
     {
         $this->account = $account;
         $this->amount = $amount;
-        $this->ignoreNegativeBalance = $ignoreNegativeBalance;
         return parent::__construct(EconomySystem::getInstance(), $origin);
     }
 
@@ -38,15 +35,5 @@ class PlayerBalanceReduceEvent extends EconomySystemEvent implements Cancellable
     public function getAmount()
     {
         return $this->amount;
-    }
-
-    public function isIgnoringNegativeBalance()
-    {
-        return $this;
-    }
-
-    public function ignoreNegativeBalance(bool $ignore)
-    {
-        $this->ignoreNegativeBalance = $ignore;
     }
 }

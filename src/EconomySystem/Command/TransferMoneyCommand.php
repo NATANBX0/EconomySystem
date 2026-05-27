@@ -49,8 +49,8 @@ class TransferMoneyCommand extends SmartCommand {
         $player = $args->getPlayer('player');
         $amount = $args->getInteger('amount');
         EconomySystem::getInstance()->getEconomyService()->transfer(
-            $sender->getName(),
-            $player->getName(),
+            $sender,
+            $player,
             $amount
         )->then(
             function ($result) use ($sender, $player, $amount) {
