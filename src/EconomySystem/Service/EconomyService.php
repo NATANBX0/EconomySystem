@@ -60,8 +60,8 @@ class EconomyService
     public function transfer($from, $to, int $amount, $origin = 'EconomySystem') : Promise
     {
         $resolver = new PromiseResolver();
-        $this->getAccount($from)->then(function (AccountInterface $fromAccount) use ($origin, $to, $amount, $resolver, $from) {
-            $this->getAccount($to)->then(function (AccountInterface $toAccount) use ($fromAccount, $amount, $origin, $resolver, $from, $to) {
+        $this->getAccount($from)->then(function (AccountInterface $fromAccount) use ($origin, $to, $amount, $resolver) {
+            $this->getAccount($to)->then(function (AccountInterface $toAccount) use ($fromAccount, $amount, $origin, $resolver) {
                 $event = SystemUtils::callEvent(new PreTransferMoneyEvent($origin, $fromAccount, $toAccount, $amount));
                 if($event->isCancelled())
                 {
@@ -81,8 +81,8 @@ class EconomyService
                     return $resolver->getPromise();
                 }
 
-                $this->reduceBalance($from, $amount);
-                $this->AddToBalance($to, $amount);
+                $this->reduceBalance($fromAccount, $amount);
+                $this->AddToBalance($toAccount, $amount);
                 $resolver->resolve(true);
                 SystemUtils::callEvent(new TransferMoneyEvent($origin, $fromAccount, $toAccount, $amount));
             });
