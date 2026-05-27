@@ -7,6 +7,7 @@ namespace EconomySystem\Command;
 use EconomySystem\EconomySystem;
 use EconomySystem\Service\Exception\AmountToTransferHigherThanBalance;
 use EconomySystem\Service\Exception\MoneyAmountLessThanZeroException;
+use EconomySystem\Utils\Messages;
 use EconomySystem\Utils\SystemUtils;
 use Exception;
 use pocketmine\command\CommandSender;
@@ -69,13 +70,13 @@ class TransferMoneyCommand extends SmartCommand {
                     }
                     if($result)
                     {
-                        $sender->sendMessage("Você enviou para {$player->getName()}: $amount coins");
-                        $player->sendMessage("Você recebeu de {$sender->getName()}: $amount coins");
+                        Messages::send($sender, 'sended-transfer', ['{player}', '{amount}', '{money}'], [$player->getName(), $amount, 'coins']);
+                        Messages::send($player, 'recived-transfer', ['{player}', '{amount}', '{money}'], [$player->getName(), $amount, 'coins']);
                     }
                 } catch(MoneyAmountLessThanZeroException $e){
-                    $sender->sendMessage("A quantidade de dinheiro não pode ser menor que 0");
+                    Messages::send($sender, 'amount-less-than-zero');
                 } catch(AmountToTransferHigherThanBalance $e) {
-                    $sender->sendMessage("A quantidade de dinheiro a ser enviada é maior que a quantidade disponivel na sua conta");
+                    Messages::send($sender, 'dont-has-enough-to-transfer');
                 } catch (Exception $e){
                     EconomySystem::getInstance()->getLogger()->error('Unknow Error: ' . $e);
                 }

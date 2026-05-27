@@ -6,6 +6,7 @@ namespace EconomySystem\Command;
 
 use EconomySystem\EconomySystem;
 use EconomySystem\Service\Exception\MoneyAmountLessThanZeroException;
+use EconomySystem\Utils\Messages;
 use EconomySystem\Utils\SystemUtils;
 use Exception;
 use pocketmine\command\CommandSender;
@@ -53,7 +54,7 @@ class MyMoneyCommand extends SmartCommand {
                     {
                         throw $result;
                     }
-                    $sender->sendMessage('Dinheiro na sua conta: ' . $result);
+                    Messages::send($sender, 'mymoney', ['money'], [$result]);
                 } catch (Exception $e) {
                     Server::getInstance()->getLogger()->error('Ocorreu um erro desconhecido: ' . $e);
                 }

@@ -1,2 +1,10 @@
 ---
+sended-transfer: "Você enviou para {player}: {amount} {money}"
+recived-transfer: "Você recebeu de {player}: {amount} {money}"
+mymoney: "Sua conta: {money}"
+amount-less-than-zero: "A quantidade de dinheiro não pode ser menor que 0"
+dont-has-enough-to-transfer: "A quantidade de dinheiro a ser enviada é maior que a quantidade disponivel na sua conta"
+setmoney: "Você definiu a o saldo de {player} para: {amount} {money}"
+decreasemoney: "Saldo da conta de {player} diminuido em {amount} saldo final: {money}"
+addmoney: "Você aumentou o saldo de {player} em {amount}: {money}"
 ...

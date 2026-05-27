@@ -7,6 +7,7 @@ namespace EconomySystem\Command\BalanceSubCommand;
 use EconomySystem\EconomySystem;
 use EconomySystem\Service\Exception\AddToBalanceEventCancelledException;
 use EconomySystem\Service\Exception\MoneyAmountLessThanZeroException;
+use EconomySystem\Utils\Messages;
 use EconomySystem\Utils\SystemUtils;
 use Exception;
 use pocketmine\command\CommandSender;
@@ -71,10 +72,10 @@ class IncreaseBalanceCommand extends BaseSubCommand
                     }
                     if($result)
                     {
-                        $sender->sendMessage("Você aumentou o saldo de {$player->getName()} em $amount: $result");
+                        Messages::send($sender, 'addmoney', ['{player}', '{amount}', '{money}'], [$player->getName(), $amount, 'coins']);
                     }
                 } catch (MoneyAmountLessThanZeroException $e) {
-                    $sender->sendMessage("A quantidade de dinheiro não pode ser menor que 0");
+                    Messages::send($sender, 'amount-less-than-zero');
                 } catch (Exception $e) {
                     EconomySystem::getInstance()->getLogger()->error('Erro desconhecido: ' . $e);
                 }

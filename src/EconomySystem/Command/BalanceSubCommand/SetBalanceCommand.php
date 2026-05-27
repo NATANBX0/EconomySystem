@@ -6,6 +6,7 @@ namespace EconomySystem\Command\BalanceSubCommand;
 
 use EconomySystem\EconomySystem;
 use EconomySystem\Service\Exception\MoneyAmountLessThanZeroException;
+use EconomySystem\Utils\Messages;
 use EconomySystem\Utils\SystemUtils;
 use Exception;
 use pocketmine\command\CommandSender;
@@ -68,11 +69,11 @@ class SetBalanceCommand extends BaseSubCommand {
                         throw $result;
                     }
 
-                    $sender->sendMessage("Você definiu a o saldo de {$player->getName()} para: $amount coins");
+                    Messages::send($sender, 'setmoney', ['{player}', '{amount}', '{money}'], [$player->getName(), $amount, $result]);
                 } catch(MoneyAmountLessThanZeroException $e) {
-                    $sender->sendMessage('A quantidade de coins a ser definida não pode ser menor que 0');
+                    Messages::send($sender, 'amount-less-than-zero');
                 } catch(Exception $e) {
-                    EconomySystem::getInstance()->getLogger()->error('Erro desconhecido');
+                    EconomySystem::getInstance()->getLogger()->error('Erro desconhecido: ' . $e);
                 }
             }
         );
